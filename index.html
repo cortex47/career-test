@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Кем тебе может быть интересно стать?</title>
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
+      --accent:#6d5dfc; --accent-2:#8b5cf6; --yes:#0f766e; --no:#b45309;
+      --line:#e5e7eb; --shadow:0 12px 40px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#f7f8ff 0%,var(--bg) 100%);color:var(--text)}
+    .wrap{max-width:760px;margin:0 auto;padding:24px 16px 40px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:28px}
+    h1{font-size:clamp(28px,5vw,44px);line-height:1.05;margin:0 0 12px}
+    h2{font-size:clamp(24px,4vw,34px);margin:0 0 10px}
+    p{line-height:1.6;color:var(--muted)}
+    .lead{font-size:18px;margin-top:0}
+    .pill{display:inline-block;padding:7px 11px;border-radius:999px;background:#efecff;color:#4c3fd3;font-weight:700;font-size:13px;margin-bottom:14px}
+    .progress{height:10px;background:#eceef5;border-radius:999px;overflow:hidden;margin:22px 0 8px}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s ease}
+    .meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+    .question{font-size:25px;line-height:1.35;font-weight:800;margin:30px 0}
+    .answers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    button{border:0;border-radius:18px;padding:18px 20px;font-size:18px;font-weight:800;cursor:pointer;transition:.15s transform,.15s box-shadow,.15s background}
+    button:hover{transform:translateY(-1px)}
+    .yes{background:#e7f7f3;color:var(--yes)}
+    .no{background:#fff3e8;color:var(--no)}
+    .primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;width:100%;box-shadow:0 8px 24px rgba(109,93,252,.25)}
+    .secondary{background:#f3f4f6;color:#374151;width:100%;margin-top:12px}
+    .hidden{display:none}
+    .result-main{padding:18px;border:1px solid #e9e7ff;background:#faf9ff;border-radius:20px;margin:20px 0}
+    .result-main strong{color:#4c3fd3}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}
+    .mini{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff}
+    .mini h3{margin:0 0 8px;font-size:17px}
+    .score{font-size:28px;font-weight:900;color:#4c3fd3}
+    ul{padding-left:20px;color:#4b5563;line-height:1.6}
+    .note{font-size:14px;background:#f8fafc;border-radius:16px;padding:14px 16px;margin-top:18px;color:#64748b}
+    .footer{font-size:12px;color:#94a3b8;text-align:center;margin-top:16px}
+    @media(max-width:600px){.card{padding:22px 18px}.answers,.grid{grid-template-columns:1fr}.question{font-size:22px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" id="startScreen">
+      <span class="pill">Мини-тест · 10 вопросов</span>
+      <h1>Кем тебе может быть интересно стать?</h1>
+      <p class="lead">Это не экзамен и не «приговор» по профессии. Тест показывает, какие способы мышления и виды задач тебе сейчас ближе: техника, анализ, творчество, люди, природа или организация.</p>
+      <p>Отвечай быстро и честно. Здесь нет правильных или неправильных ответов.</p>
+      <button class="primary" id="startBtn">Начать тест</button>
+    </section>
+
+    <section class="card hidden" id="quizScreen">
+      <div class="meta"><span id="stepText">Вопрос 1 из 10</span><span>Да / Нет</span></div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="question" id="questionText"></div>
+      <div class="answers">
+        <button class="yes" data-answer="yes">Да</button>
+        <button class="no" data-answer="no">Нет</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="resultScreen">
+      <span class="pill">Результат</span>
+      <h2 id="resultTitle"></h2>
+      <div class="result-main" id="resultSummary"></div>
+      <div class="grid" id="scoresGrid"></div>
+      <h3>Что можно попробовать уже сейчас</h3>
+      <ul id="tryList"></ul>
+      <h3>План экспериментов на ближайший месяц</h3>
+      <ol id="monthPlan"></ol>
+      <h3>Какие направления стоит посмотреть</h3>
+      <ul id="careerList"></ul>
+      <div class="note">Важно: в 13 лет интересы ещё активно меняются. Лучше использовать результат как подсказку, какие кружки, проекты и предметы попробовать в ближайшие 6–12 месяцев.</div>
+      <button class="secondary" id="restartBtn">Пройти ещё раз</button>
+    </section>
+    <div class="footer">Небольшой ориентир для выбора направлений развития, а не профессиональная диагностика.</div>
+  </main>
+
+<script>
+const questions = [
+  {
+    text: "Тебе нравится разбираться, почему устройство, программа или механизм работает именно так?",
+    yes:{tech:2, analysis:1}, no:{people:1, creative:1}
+  },
+  {
+    text: "Если задача сложная, тебе интересно раскладывать её на маленькие части и искать решение шаг за шагом?",
+    yes:{analysis:2, tech:1}, no:{creative:1, people:1}
+  },
+  {
+    text: "Тебе нравится придумывать истории, оформление, идеи, рисунки, видео или необычные способы что-то показать?",
+    yes:{creative:2, people:1}, no:{analysis:1, tech:1}
+  },
+  {
+    text: "Тебе интересно объяснять другим людям то, что ты сама уже поняла?",
+    yes:{people:2, leadership:1}, no:{analysis:1}
+  },
+  {
+    text: "Тебе было бы интересно проводить опыты, наблюдать за природой, организмами или окружающей средой?",
+    yes:{science:2, analysis:1}, no:{tech:1, creative:1}
+  },
+  {
+    text: "Тебе нравится собирать что-то из деталей, конструкторов или делать вещи руками по своему замыслу?",
+    yes:{tech:2, creative:1}, no:{people:1, analysis:1}
+  },
+  {
+    text: "Когда в группе никто не знает, что делать дальше, тебе хочется предложить план и распределить задачи?",
+    yes:{leadership:2, people:1}, no:{creative:1, analysis:1}
+  },
+  {
+    text: "Тебе интересно искать закономерности в числах, таблицах, фактах или сравнивать разные варианты?",
+    yes:{analysis:2, tech:1}, no:{creative:1, people:1}
+  },
+  {
+    text: "Тебе нравится узнавать, почему люди поступают по-разному и что они чувствуют?",
+    yes:{people:2, creative:1}, no:{tech:1, analysis:1}
+  },
+  {
+    text: "Ты бы скорее выбрала проект, где нужно создать что-то новое, чем просто повторить готовый образец?",
+    yes:{creative:2, leadership:1, tech:1}, no:{analysis:1, science:1}
+  }
+];
+
+const labels = {
+  tech:"Техника и инженерия",
+  analysis:"Аналитика и IT",
+  creative:"Творчество и дизайн",
+  people:"Люди и коммуникации",
+  science:"Наука и природа",
+  leadership:"Организация и управление"
+};
+
+const descriptions = {
+  tech:{
+    title:"Инженерный склад мышления",
+    text:"Тебе, вероятно, интересно понимать устройство вещей, собирать, улучшать и находить технические решения.",
+    careers:["инженерия и робототехника","электроника и автоматизация","архитектура технических систем","промышленный дизайн","разработка устройств и умной техники"],
+    try:["робототехника или Arduino","3D-моделирование","конструкторские проекты","простые проекты с электроникой"]
+  },
+  analysis:{
+    title:"Аналитический склад мышления",
+    text:"Тебе подходят задачи, где нужно искать закономерности, разбираться в сложных системах и принимать решения на основе фактов.",
+    careers:["программирование и разработка ПО","искусственный интеллект и анализ данных","кибербезопасность","системная аналитика","финансовая и бизнес-аналитика"],
+    try:["Python или Scratch","логические задачи","олимпиадная математика без давления","небольшие проекты с данными"]
+  },
+  creative:{
+    title:"Творческий склад мышления",
+    text:"Тебе может быть особенно интересно создавать новое, работать с образами, идеями, стилем и нестандартной подачей.",
+    careers:["графический и продуктовый дизайн","UX/UI-дизайн","анимация и 3D","архитектура","медиа, контент и креативные индустрии"],
+    try:["рисование или цифровая иллюстрация","монтаж видео","3D-графика","создание собственного небольшого проекта или блога"]
+  },
+  people:{
+    title:"Гуманитарно-коммуникационный склад мышления",
+    text:"Тебе могут подходить направления, где важно понимать людей, объяснять, договариваться, поддерживать и работать с идеями и смыслами.",
+    careers:["психология","образование","журналистика и коммуникации","HR и развитие команд","право и общественные науки"],
+    try:["дебаты или школьные проекты","волонтёрство","ведение интервью","написание текстов и выступления"]
+  },
+  science:{
+    title:"Исследовательский склад мышления",
+    text:"Тебе может быть интересно наблюдать, проверять гипотезы и понимать, как устроены природа, организм и окружающий мир.",
+    careers:["биотехнологии","медицина и медицинские технологии","экология","химия и материаловедение","научные исследования"],
+    try:["домашние безопасные научные опыты","биология или химия углублённо","наблюдательные проекты","научно-популярные кружки"]
+  },
+  leadership:{
+    title:"Организаторский склад мышления",
+    text:"Тебе может нравиться превращать идеи в результат: планировать, собирать людей вокруг задачи и принимать решения.",
+    careers:["предпринимательство","продуктовый менеджмент","управление проектами","организация мероприятий","управление командами и бизнесом"],
+    try:["организовать маленький проект","планировать семейное или школьное мероприятие","участвовать в командных конкурсах","придумать мини-проект и довести его до результата"]
+  }
+};
+
+let current = 0;
+let scores = {tech:0,analysis:0,creative:0,people:0,science:0,leadership:0};
+
+const startScreen = document.getElementById('startScreen');
+const quizScreen = document.getElementById('quizScreen');
+const resultScreen = document.getElementById('resultScreen');
+const qText = document.getElementById('questionText');
+const stepText = document.getElementById('stepText');
+const bar = document.getElementById('bar');
+
+function showQuestion(){
+  const q = questions[current];
+  qText.textContent = q.text;
+  stepText.textContent = `Вопрос ${current+1} из ${questions.length}`;
+  bar.style.width = `${(current/questions.length)*100}%`;
+}
+
+function applyPoints(map){
+  Object.entries(map).forEach(([k,v]) => scores[k] += v);
+}
+
+function finish(){
+  bar.style.width = '100%';
+  quizScreen.classList.add('hidden');
+  resultScreen.classList.remove('hidden');
+
+  const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const [topKey, topScore] = sorted[0];
+  const secondKey = sorted[1][0];
+  const top = descriptions[topKey];
+
+  document.getElementById('resultTitle').textContent = top.title;
+  document.getElementById('resultSummary').innerHTML = `
+    <p><strong>Главное направление:</strong> ${labels[topKey]}</p>
+    <p>${top.text}</p>
+    <p><strong>Дополнительная сильная сторона:</strong> ${labels[secondKey]}.</p>
+  `;
+
+  const max = Math.max(...Object.values(scores),1);
+  document.getElementById('scoresGrid').innerHTML = sorted.map(([k,v])=>`
+    <div class="mini"><h3>${labels[k]}</h3><div class="score">${Math.round((v/max)*100)}%</div></div>
+  `).join('');
+
+  const combinedTry = [...new Set([...top.try, ...descriptions[secondKey].try.slice(0,2)])];
+  const combinedCareers = [...new Set([...top.careers, ...descriptions[secondKey].careers.slice(0,2)])];
+  document.getElementById('tryList').innerHTML = combinedTry.map(x=>`<li>${x}</li>`).join('');
+
+  const monthExperiments = {
+    tech:[
+      'Собери небольшой работающий проект: модель, механизм, электронную схему или 3D-конструкцию.',
+      'Разбери принцип работы одного привычного устройства и нарисуй простую схему: из каких частей оно состоит.',
+      'В конце месяца выбери один проект, который хотелось бы улучшить, и сделай вторую версию.'
+    ],
+    analysis:[
+      'Попробуй сделать маленький проект в Scratch или Python: игру, викторину, калькулятор или простую автоматизацию.',
+      'Возьми интересную тему и собери 20–30 фактов или чисел, затем найди в них закономерности и сделай вывод.',
+      'Реши несколько логических задач разного типа и отметь, какие из них хочется разбирать даже после ошибки.'
+    ],
+    creative:[
+      'Создай законченный мини-проект: постер, короткое видео, иллюстрацию, 3D-сцену или дизайн приложения.',
+      'Возьми одну идею и сделай три совершенно разных варианта оформления, а затем выбери лучший и объясни почему.',
+      'Покажи работу нескольким людям, собери обратную связь и улучши её — как настоящий дизайнер.'
+    ],
+    people:[
+      'Подготовь и проведи небольшое интервью с человеком на интересную тебе тему, а затем кратко перескажи главное.',
+      'Попробуй объяснить кому-нибудь сложную тему простыми словами и посмотри, получилось ли сделать её понятной.',
+      'Поучаствуй в командном, волонтёрском или школьном проекте и отметь, какие задачи с людьми тебе нравятся больше всего.'
+    ],
+    science:[
+      'Выбери один вопрос о природе, человеке или веществах и сформулируй гипотезу: что ты ожидаешь увидеть и почему.',
+      'Проведи безопасное наблюдение или опыт, записывая результаты, а не только впечатления.',
+      'В конце месяца сделай одностраничный мини-отчёт: вопрос → гипотеза → наблюдения → вывод.'
+    ],
+    leadership:[
+      'Придумай маленький проект на 1–2 недели и сама составь план: цель, этапы, сроки и что понадобится.',
+      'Организуй небольшое семейное или школьное дело, где нужно договориться с несколькими людьми.',
+      'После завершения оцени: что получилось по плану, что сорвалось и что в следующий раз организовала бы иначе.'
+    ]
+  };
+  const plan = [monthExperiments[topKey][0], monthExperiments[secondKey][1], monthExperiments[topKey][2]];
+  document.getElementById('monthPlan').innerHTML = plan.map((x,i)=>`<li><strong>${i===0?'Неделя 1':i===1?'Недели 2–3':'Неделя 4'}:</strong> ${x}</li>`).join('');
+  document.getElementById('careerList').innerHTML = combinedCareers.map(x=>`<li>${x}</li>`).join('');
+}
+
+document.getElementById('startBtn').addEventListener('click',()=>{
+  startScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  showQuestion();
+});
+
+document.querySelectorAll('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>{
+  const ans = btn.dataset.answer;
+  applyPoints(questions[current][ans]);
+  current++;
+  if(current >= questions.length) finish(); else showQuestion();
+}));
+
+document.getElementById('restartBtn').addEventListener('click',()=>{
+  current = 0;
+  scores = {tech:0,analysis:0,creative:0,people:0,science:0,leadership:0};
+  resultScreen.classList.add('hidden');
+  startScreen.classList.remove('hidden');
+  bar.style.width='0%';
+});
+</script>
+</body>
+</html>
